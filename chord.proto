@@ -1,0 +1,177 @@
+syntax = "proto3";
+
+package chord;
+
+// Node information
+message NodeInfo {
+    int64 id = 1;
+    string address = 2;
+    int32 port = 3;
+}
+
+// Data item with versioning
+message DataItem {
+    string key = 1;
+    string value = 2;
+    int32 version = 3;
+    int64 timestamp = 4;
+}
+
+// Find successor
+message FindSuccessorRequest {
+    int64 key_id = 1;
+}
+
+message FindSuccessorResponse {
+    NodeInfo node = 1;
+    repeated int64 path = 2;
+    int32 hops = 3;
+}
+
+// Get predecessor/successor
+message GetPredecessorRequest {}
+
+message GetPredecessorResponse {
+    NodeInfo node = 1;
+    bool exists = 2;
+}
+
+message GetSuccessorRequest {}
+
+message GetSuccessorResponse {
+    NodeInfo node = 1;
+}
+
+// Get successor list
+message GetSuccessorListRequest {}
+
+message GetSuccessorListResponse {
+    repeated NodeInfo successors = 1;
+}
+
+// Notify for stabilization
+message NotifyRequest {
+    NodeInfo node = 1;
+}
+
+message NotifyResponse {
+    bool success = 1;
+}
+
+// Data operations
+message PutRequest {
+    string key = 1;
+    string value = 2;
+    bool is_replica = 3;
+    int32 version = 4;  // Added for replication consistency
+}
+
+message PutResponse {
+    bool success = 1;
+    string message = 2;
+    int32 version = 3;
+}
+
+message GetRequest {
+    string key = 1;
+}
+
+message GetResponse {
+    bool found = 1;
+    string value = 2;
+    int32 version = 3;
+}
+
+message DeleteRequest {
+    string key = 1;
+    bool is_replica = 2;
+}
+
+message DeleteResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+// Join network
+message JoinRequest {
+    NodeInfo joining_node = 1;
+}
+
+message JoinResponse {
+    NodeInfo successor = 1;
+    bool success = 2;
+    string message = 3;
+}
+
+// Transfer keys
+message TransferKeysRequest {
+    int64 start_id = 1;
+    int64 end_id = 2;
+    NodeInfo target_node = 3;
+}
+
+message TransferKeysResponse {
+    repeated DataItem items = 1;
+    bool success = 2;
+    string message = 3;
+}
+
+// Replica synchronization
+message SyncReplicaRequest {
+    string key = 1;
+    string value = 2;
+    int32 version = 3;
+    int64 timestamp = 4;
+}
+
+message SyncReplicaResponse {
+    bool success = 1;
+}
+
+// Statistics
+message GetStatsRequest {}
+
+message GetStatsResponse {
+    int64 node_id = 1;
+    int32 primary_keys = 2;
+    int32 replica_keys = 3;
+    int64 lookups = 4;
+    double avg_hops = 5;
+    string status = 6;
+    int32 replication_factor = 7;
+    int32 alive_successors = 8;
+}
+
+// Ping for health check
+message PingRequest {}
+
+message PingResponse {
+    bool alive = 1;
+    int64 node_id = 2;
+}
+
+// Chord DHT Service
+service ChordService {
+    // Routing operations
+    rpc FindSuccessor(FindSuccessorRequest) returns (FindSuccessorResponse);
+    rpc GetPredecessor(GetPredecessorRequest) returns (GetPredecessorResponse);
+    rpc GetSuccessor(GetSuccessorRequest) returns (GetSuccessorResponse);
+    rpc GetSuccessorList(GetSuccessorListRequest) returns (GetSuccessorListResponse);
+    
+    // Stabilization
+    rpc Notify(NotifyRequest) returns (NotifyResponse);
+    rpc Ping(PingRequest) returns (PingResponse);
+    
+    // Data operations
+    rpc Put(PutRequest) returns (PutResponse);
+    rpc Get(GetRequest) returns (GetResponse);
+    rpc Delete(DeleteRequest) returns (DeleteResponse);
+    
+    // Network operations
+    rpc Join(JoinRequest) returns (JoinResponse);
+    rpc TransferKeys(TransferKeysRequest) returns (TransferKeysResponse);
+    rpc SyncReplica(SyncReplicaRequest) returns (SyncReplicaResponse);
+    
+    // Monitoring
+    rpc GetStats(GetStatsRequest) returns (GetStatsResponse);
+}
