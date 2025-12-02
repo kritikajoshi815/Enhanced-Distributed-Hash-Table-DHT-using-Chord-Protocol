@@ -1,6 +1,7 @@
 # Enhanced Chord Distributed Hash Table (DHT) with Replication
 
 This project implements an enhanced version of the Chord Distributed Hash Table (DHT), a peer-to-peer system that provides efficient and decentralized key-value storage. The enhancement includes data replication for fault tolerance and improved data availability.
+PPT Link: https://docs.google.com/presentation/d/1950seXZlZKuwib9M8b18XL5bxA7AO9hppXKI083a0lw/edit?usp=sharing
 
 ## Features
 
